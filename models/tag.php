@@ -13,7 +13,8 @@ class Tag extends TaggingAppModel
 		'Tagging.Sluggable' => array(
 			'label' => 'name',
 			'length' => 255,
-			'translation' => 'utf-8'
+			'translation' => 'utf-8',
+			'overwrite' => 1
 		)
 	);
 	
