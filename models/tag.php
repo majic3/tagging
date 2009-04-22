@@ -96,7 +96,7 @@ class Tag extends TaggingAppModel
 		// Related model
 		$this->data['Tagged'] = array($tagged);
 		
-		$this->saveAll($this->data);
+		return $this->saveAll($this->data);
 	}
 
 	/**
@@ -130,10 +130,10 @@ class Tag extends TaggingAppModel
 				
 		$options = Set::merge(compact('conditions'), $options);
 		
-		// 'Order by' default
+		// ORDER BY default
 		if(empty($options['order']))
 		{
-			$options['order'] = 'Tag.name ASC';
+			$options['order'] = 'name ASC';
 		}
 		
 		// Recursive level imposed
