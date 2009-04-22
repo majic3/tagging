@@ -57,7 +57,7 @@ class TagCase extends CakeTestCase {
             "should return International when given int : %s");
 
         $result = $this->Tag->suggest('abcd');
-        $this->assertIdentical($result, null,
+        $this->assertIdentical($result, array(),
             "should return null if not tag matches : %s");
 
         $result = $this->Tag->suggest();
