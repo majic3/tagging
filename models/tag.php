@@ -1,25 +1,17 @@
 <?php
-class Tag extends TaggingAppModel
-{
-	var $name = 'Tag';
-	
-	var $displayField = 'name';
+App::import('Core', 'Multibyte');
 
-	var $hasMany = array('Tagged' => array(
-		'className' => 'Tagging.Tagged',
-		'dependent' => true
-	));
-	
-	var $actsAs = array(
-		'Tagging.Sluggable' => array(
+class Tag extends TaggingAppModel {
+	public $displayField = 'name';
+	public $hasMany = array('Tagging.ModelsTag' => array('dependent' => true));
+	public $actsAs = array(
+		'Syrup.Sluggable' => array(
 			'label' => 'name',
-			'length' => 160,
 			'translation' => 'utf-8',
-			'overwrite' => 1
+			'overwrite' => true
 		)
 	);
-	
-	var $validate = array(
+	public $validate = array(
 		'name' => array(
 			'notEmpty' => array(
 				'rule' => 'notEmpty',
@@ -32,71 +24,73 @@ class Tag extends TaggingAppModel
 				'on' => 'create',
 				'message' => 'isUnique'
 			)
-		),
-		'slug' => array(
-			'rule' => 'notEmpty',
-			'on' => 'update'
-		),
+		)
 	);
-	
+
 	/**
 	 * Returns tags matching first letters
 	 *
-	 * @param string $first_letters
+	 * @param string $firstLetters
 	 * @return array Matching tag names as a simple associative array
 	 */
-	function suggest($first_letters = '')
-	{
-		if(empty($first_letters))
-		{
+	public function suggest($firstLetters = '') {
+		if (empty($firstLetters)) {
 			return;
 		}
-		
-		$first_letters = trim($first_letters);
-		
-		App::import('Core', 'Multibyte');
-		
-		if(Multibyte::strlen($first_letters) <= 2)
-		{
+
+		$firstLetters = trim($firstLetters);
+		if (Multibyte::strlen($firstLetters) <= 2) {
 			return;
 		}
 
 		$fields     = array('name');
-		$conditions = array('name LIKE' => "{$first_letters}%");
+		$conditions = array('name LIKE' => "{$firstLetters}%");
 		$order      = 'name ASC';
 		$limit      = 10;
 		$recursive  = -1;
-		
+
 		return array_values($this->find('list', compact(
 			'fields', 'conditions', 'order', 'limit', 'recursive'
 		)));
 	}
-	
+
 	/**
 	 * Save a tag and the association with the tagged model
 	 *
 	 * @param string $tag Tag name
 	 * @param array $tagged Tagged model parameters array : tagged model name and tagged model primary key
 	 */
-	function saveTag($tag = '', $tagged = array())
-	{
-		if(empty($tag) or empty($tagged))
-		{
+	public function saveTag($tag = '', $tagged = array()) {
+		if (empty($tag) || empty($tagged)) {
 			return;
 		}
-		
-		// Tag exists ?
-		$this->recursive = -1;
-		
-		if(!$this->data = $this->find(array('name' => $tag)))
-		{
-			$this->data = array('Tag' => array('name' => $tag));
+
+		$currentTag = $this->find('first', array('conditions'=>array($this->alias . '.name' => $tag), 'recursive'=>-1));
+		if (!empty($currentTag)) {
+			$tag = $currentTag;
+		} else {
+			$tag = array('Tag' => array('name' => $tag));
+			$this->create();
 		}
-		
-		// Related model
-		$this->data['Tagged'] = array($tagged);
-		
-		return $this->saveAll($this->data);
+
+		$result = false;
+		if ($this->save($tag)) {
+			// Go around cake bug with naming of plugin based binding instances
+			$className = 'Tagging.ModelsTag';
+			if (empty($this->ModelsTag) && is_object($this->$className)) {
+				list($plugin, $alias) = explode('.', $className);
+				$this->ModelsTag = $this->$className;
+				$this->ModelsTag->alias = $alias;
+			}
+
+			$tagged = array($this->ModelsTag->alias => $tagged);
+			$tagged[$this->ModelsTag->alias]['tag_id'] = $this->id;
+
+			$this->ModelsTag->create();
+			$result = $this->ModelsTag->save($tagged) !== false;
+		}
+
+		return $result;
 	}
 
 	/**
@@ -108,37 +102,27 @@ class Tag extends TaggingAppModel
 	 * - max_count : maximum number of times a tag is used
 	 * @return array
 	 */
-	function tagCloud($options = array())
-	{
-		// Counting bounds:
-		// 'min_count' and/or 'max_count' in $options ?
+	public function tagCloud($options = array()) {
 		$conditions = array();
-		
-		if(isset($options['min_count']))
-		{
+
+		if (isset($options['min_count'])) {
 			$conditions[] = 'Tag.count >= ' . $options['min_count'];
 			unset($options['min_count']);
 		} else {
 			$conditions[] = 'Tag.count > 0';
 		}
-		
-		if(isset($options['max_count']))
-		{
+
+		if (isset($options['max_count'])) {
 			$conditions[] = 'Tag.count <= ' . $options['max_count'];
 			unset($options['max_count']);
 		}
-				
+
 		$options = Set::merge(compact('conditions'), $options);
-		
-		// ORDER BY default
-		if(empty($options['order']))
-		{
+		if (empty($options['order'])) {
 			$options['order'] = 'name ASC';
 		}
-		
-		// Recursive level imposed
 		$options['recursive'] = -1;
-		
+
 		return $this->find('all', $options);
 	}
 }

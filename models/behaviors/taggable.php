@@ -1,77 +1,62 @@
 <?php
-class TaggableBehavior extends ModelBehavior
-{
+class TaggableBehavior extends ModelBehavior {
 	/**
-	 * Tag Model handler
+	 * Tag model
 	 *
 	 * @var object
 	 */
-	var $Tag = null;
-	
+	public $Tag = null;
+
 	/**
-	 * Tagged Model handler
+	 * ModelsTag model
 	 *
 	 * @var object
 	 */
-	var $Tagged = null;
-	
+	public $ModelsTag = null;
+
 	/**
 	 * Initializes Tag and Tagged models
 	 */
-	function setup()
-	{
+	public function setup() {
 		$this->Tag = ClassRegistry::init('Tagging.Tag');
-		$this->Tagged = ClassRegistry::init('Tagging.Tagged');
+		$this->ModelsTag = ClassRegistry::init('Tagging.ModelsTag');
 	}
-	
+
 	/**
 	 * Save tag and tagged models
 	 *
 	 * @param object $model
 	 */
-	function afterSave(&$model)
-	{
-		if(!isset($model->data[$model->alias]['tags']))
-		{
+	public function afterSave($model) {
+		if (!isset($model->data[$model->alias]['tags'])) {
 			return;
 		}
-		
-		$tagged_conditions = array(
-			'model'    => $model->alias,
-			'model_id' => $model->id,
-		);
-		
-		$this->Tagged->deleteAll($tagged_conditions, false, true);
+
+		$taggedConditions = array('model' => $model->alias, 'model_id' => $model->id);
+		$this->ModelsTag->deleteAll($taggedConditions, false, true);
 
 		$tags = Set::normalize($model->data[$model->alias]['tags'], false);
 		$tags = array_unique($tags);
-		
-		foreach($tags as $tag)
-		{
-			$this->Tag->saveTag($tag, $tagged_conditions);
+
+		foreach($tags as $tag) {
+			$this->Tag->saveTag($tag, $taggedConditions);
 		}
 	}
-	
+
 	/**
 	 * Delete tag relations with current Model Id
 	 *
 	 * @param object $model
 	 */
-	function beforeDelete(&$model)
-	{
-		if(!$model->id)
-		{
+	public function beforeDelete($model) {
+		if (empty($model->id)) {
 			return false;
 		}
-		
-		$conditions = array(
-			'model'    => $model->alias,
-			'model_id' => $model->id,
-		);
-		
-		return $this->Tagged->deleteAll($conditions, false, true);
+
+		$conditions = array('model' => $model->alias, 'model_id' => $model->id);
+		return $this->ModelsTag->deleteAll($conditions, false, true);
 	}
-	
+
 	/**
 	 * Populates results array with a new field 'tags' with comma separated tag names
 	 * Only for 1 row results sets (find('first') or read())
@@ -81,21 +66,15 @@ class TaggableBehavior extends ModelBehavior
 	 * @param array $primary
 	 * @return array
 	 */
-	function afterFind(&$model, $results, $primary = false)
-	{
-		if(count($results) == 1 && isset($results[0][$model->alias][$model->primaryKey]))
-		{
-			$tags = $this->Tagged->findTags(
-				$model->alias,
-				$results[0][$model->alias][$model->primaryKey]
-			);
-					
+	public function afterFind($model, $results, $primary = false) {
+		if (count($results) == 1 && isset($results[0][$model->alias][$model->primaryKey])) {
+			$tags = $this->ModelsTag->findTags($model->alias, $results[0][$model->alias][$model->primaryKey]);
 			$results[0][$model->alias]['tags'] = join(', ', Set::extract('/Tag/name', $tags));
 		}
-		
+
 		return $results;
 	}
-	
+
 	/**
 	 * Finds tags related to a record
 	 *
@@ -103,21 +82,14 @@ class TaggableBehavior extends ModelBehavior
 	 * @param int $id Related model primary key
 	 * @return mixed Found related tags
 	 */
-	function findTags(&$model, $id = null)
-	{
-		if(!$id && !$model->id)
-		{
+	public function findTags($model, $id = null) {
+		if (empty($id) && empty($model->id)) {
 			return null;
 		}
-		
-		if(!$id)
-		{
-			$id = $model->id;
-		}
-		
-		return $this->Tagged->findTags($model->alias, $id);
+
+		return $this->ModelsTag->findTags($model->alias, !empty($id) ? $id : $model->id);
 	}
-	
+
 	/**
 	 * Find used tags, model specific
 	 *
@@ -127,9 +99,8 @@ class TaggableBehavior extends ModelBehavior
 	 * - max_count : maximum number of times a tag is used
 	 * @return array
 	 */
-	function tagCloud(&$model, $options = array())
-	{
-		return $this->Tagged->tagCloud($model->alias, $options);
+	public function tagCloud($model, $options = array()) {
+		return $this->ModelsTag->tagCloud($model->alias, $options);
 	}
 
 	/**
@@ -137,80 +108,61 @@ class TaggableBehavior extends ModelBehavior
 	 *
 	 * @param object $model
 	 * @param int $id Record Id
-	 * @param bool $restrict_to_model If true, returns related records of the same model, if false return all related records
+	 * @param bool $restrictToModel If true, returns related records of the same model, if false return all related records
 	 * @param int limit Limit the number of records
 	 * @return array Related records
 	 */
-	function findRelated(&$model, $id = null, $restrict_to_model = true, $limit = null)
-	{
-		if(is_bool($id))
-		{
-			$limit = $restrict_to_model;
-			$restrict_to_model = $id;
+	public function findRelated($model, $id = null, $restrictToModel = true, $limit = null) {
+		if (is_bool($id)) {
+			$limit = $restrictToModel;
+			$restrictToModel = $id;
 			$id = null;
 		}
-		
-		if(!$id && !$model->id)
-		{
-			return;
+
+		if (empty($id) && empty($model->id)) {
+			return false;
 		}
-		
-		if(!$id)
-		{
+
+		if (empty($id)) {
 			$id = $model->id;
 		}
-		
-		if(!$tags = $this->Tagged->findTags($model->alias, $id))
-		{
-			return;
+
+		$tags = $this->ModelsTag->findTags($model->alias, $id);
+		if (empty($tags)) {
+			return false;
 		}
-		
-		$tag_ids = Set::extract('/Tag/id', $tags);
-		
-		// Restrict to Model ?
-		$taggedWith_model = null;
-		
-		if($restrict_to_model)
-		{
-			$taggedWith_model = $model->alias;
+
+		$tagIds = Set::extract('/Tag/id', $tags);
+		$taggedWithModel = null;
+		if ($restrictToModel) {
+			$taggedWithModel = $model->alias;
 		}
-		
-		// Exclude this record from results
-		$exclude_ids = array_values($this->Tagged->find('list', array(
-			'fields'     => 'id',
+
+		$excludeIds = array_values($this->ModelsTag->find('list', array(
+			'fields'     => $this->ModelsTag->alias . '.' . $this->ModelsTag->primaryKey,
 			'conditions' => array('model' => $model->alias, 'model_id' => $id),
 			'recursive'  => -1
 		)));
-		
-		// Related records
-		if(!$related = $this->Tagged->taggedWith($taggedWith_model, $tag_ids, $exclude_ids, $limit))
-		{
-			return;
+
+		$related = $this->ModelsTag->taggedWith($taggedWithModel, $tagIds, $excludeIds, $limit);
+		if (empty($related)) {
+			return false;
 		}
-		
-		// Final results
-		if($restrict_to_model)
-		{
-			$model_ids = Set::extract('/Tagged/model_id', $related);
-			
+
+		if ($restrictToModel) {
+			$modelIds = Set::extract('/' . $this->ModelsTag->alias . '/model_id', $related);
 			$pk = $model->escapeField($model->primaryKey);
-			
-			$conditions = array($pk => $model_ids);
-			$order = "FIELD({$pk}, " . join(', ', $model_ids) . ")";
-			
+			$conditions = array($pk => $modelIds);
+			$order = "FIELD({$pk}, " . join(', ', $modelIds) . ")";
 			$results = $model->find('all', compact('conditions', 'order'));
-		}
-		else
-		{
+		} else {
 			$results = array();
-			
-			foreach($related as $row)
-			{
-				if($assoc_model = ClassRegistry::init($row['Tagged']['model']))
-				{
-					$assoc_model->id = $row['Tagged']['model_id'];
-		
-					$results[] = $assoc_model->read();
+			foreach($related as $row) {
+				if ($assocModel = ClassRegistry::init($row[$this->ModelsTag->alias]['model'])) {
+					$results[] = $assocModel->find('first', array(
+						'conditions' => array($assocModel->alias . '.' . $assocModel->primaryKey => $row[$this->ModelsTag->alias]['model_id']),
+						'recursive' => -1
+					));
 				}
 			}
 		}

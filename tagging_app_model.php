@@ -1,6 +1,5 @@
 <?php
-class TaggingAppModel extends AppModel
-{
-	
+class TaggingAppModel extends AppModel {
+	public $cacheQueries = false;
 }
 ?>
