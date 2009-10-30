@@ -135,6 +135,10 @@ class TaggingHelper extends AppHelper {
 	 * </ul>
 	 */
 	public function generateCloud($data = array(), $options = array()) {
+		if (empty($tag)) {
+			return '';
+		}
+
 		$options = Set::merge(array(
 			'maxScale' => 7,
 			'linkClass' => 'tag-size-',
