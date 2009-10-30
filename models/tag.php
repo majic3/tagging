@@ -98,31 +98,23 @@ class Tag extends TaggingAppModel {
 	 *
 	 * @param array $options Options (same as classic find options)
 	 * Two new keys available :
-	 * - min_count : minimum number of times a tag is used
-	 * - max_count : maximum number of times a tag is used
+	 * - minCount : minimum number of times a tag is used
+	 * - maxCount : maximum number of times a tag is used
 	 * @return array
 	 */
 	public function tagCloud($options = array()) {
+		$defaults = array('minCount' => 0, 'maxCount' => null);
+		$options = array_merge($defaults, $options);
 		$conditions = array();
 
-		if (isset($options['min_count'])) {
-			$conditions[] = 'Tag.count >= ' . $options['min_count'];
-			unset($options['min_count']);
-		} else {
-			$conditions[] = 'Tag.count > 0';
+		$conditions['Tag.count >='] = $options['minCount'];
+		if (!empty($options['maxCount'])) {
+			$conditions['Tag.count <='] = $options['maxCount'];
 		}
 
-		if (isset($options['max_count'])) {
-			$conditions[] = 'Tag.count <= ' . $options['max_count'];
-			unset($options['max_count']);
-		}
-
-		$options = Set::merge(compact('conditions'), $options);
-		if (empty($options['order'])) {
-			$options['order'] = 'name ASC';
-		}
-		$options['recursive'] = -1;
-
+		$recursive = -1;
+		$order = array($this->alias . '.name' => 'asc');
+		$options = Set::merge(compact('conditions', 'order', 'recursive'), array_diff_key($options, $defaults));
 		return $this->find('all', $options);
 	}
 }

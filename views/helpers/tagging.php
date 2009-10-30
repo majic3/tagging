@@ -135,7 +135,7 @@ class TaggingHelper extends AppHelper {
 	 * </ul>
 	 */
 	public function generateCloud($data = array(), $options = array()) {
-		if (empty($tag)) {
+		if (empty($data)) {
 			return '';
 		}
 
