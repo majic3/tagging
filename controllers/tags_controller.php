@@ -17,5 +17,19 @@ class TagsController extends TaggingAppController {
 			$this->set(compact('matches'));
 		}
 	}
+
+	/**
+	 * Public Index for Tags
+	 */
+	public function index() {
+	}
+
+	/**
+	 * Admin Index for Tags
+	 */
+	public function admin_index() {
+		$tags = $this->Tag->find('all');
+		$this->set(compact('tags'));
+	}
 }
 ?>

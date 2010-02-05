@@ -25,7 +25,7 @@ class TaggingHelper extends AppHelper {
 	 */
 	public $options = array(
 		'selector' => '.tagSuggest',
-		'url' => '/tagging/tags/suggest',
+		'url' => '/admin/tagging/tags/suggest',
 		'delay' => 500,
 		'separator' => ', ',
 		'matchClass' => 'tagMatches',
@@ -34,6 +34,16 @@ class TaggingHelper extends AppHelper {
 		'tagWrap' => 'span',
 		'tags' => null,
 	);
+
+	/**
+	 * Script prop
+	 */
+	private $script = '';
+
+	/**
+	 * Script prop
+	 */
+	private $scriptSrc = '/tagging/js/tag.js';
 
 	/**
 	 * Sets default options for jQuery tag suggest plugin
@@ -64,8 +74,8 @@ class TaggingHelper extends AppHelper {
 
 		// jQuery Tag plugin
 		// ©Remy Sharp
-		// http://remysharp.com/2007/12/28/jquery-tag-suggestion/
-		$this->Javascript->link('/tagging/js/tag.js', false);
+		// http://remysharp.com/2007/12/28/jquery-tag-suggestion/ - will have alt option for using GR facebook style alternative for this
+		$this->Javascript->link($this->scriptSrc, false);
 
 		// Tag plugin CSS
 		$this->Html->css('/tagging/css/tagging.css', null, array('media' => 'screen'), false);
@@ -74,8 +84,10 @@ class TaggingHelper extends AppHelper {
 		$selector = $options['selector'];
 		unset($options['selector']);
 
-		$script = '$(function () {
-			$("' . $selector . '").tagSuggest(' . $this->Javascript->object($options) . ');
+		$this->script = '$("' . $selector . '").tagSuggest(' . $this->Javascript->object($options) . ');';
+
+		$script = '$(document).ready(function () {
+			'.$this->script.'
 		});';
 
 		$this->Javascript->codeBlock($script, array('inline' => false));
@@ -264,6 +276,25 @@ class TaggingHelper extends AppHelper {
 	 */
 	protected function _getPercentage($weight, $minWeight, $maxWeight) {
 		return $this->_getScale($weight, $minWeight, $maxWeight, 0, 100);
+	}
+
+	/**
+	 * Public return the script set up for jquery or the ScriptSrc being used
+	 *
+	 * @param src set to true to return the source of the script to be used
+	 * @return false if not yet set string of source / the setup call
+	 */
+	public function getScript($src = false) {
+
+		if($src)	{
+			return $this->scriptSrc;
+		}
+
+		if($this->initDone)	{
+			return $this->script;
+		} else {
+			return false;
+		}
 	}
 }
 ?>
