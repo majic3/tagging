@@ -5,11 +5,7 @@ class Tag extends TaggingAppModel {
 	public $displayField = 'name';
 	public $hasMany = array('Tagging.ModelsTag' => array('dependent' => true));
 	public $actsAs = array(
-		'Syrup.Sluggable' => array(
-			'label' => 'name',
-			'translation' => 'utf-8',
-			'overwrite' => true
-		)
+		'Slug' => array('separator' => '-', 'overwrite' => true, 'label' => 'name'),
 	);
 	public $validate = array(
 		'name' => array(
