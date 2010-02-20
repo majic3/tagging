@@ -3,6 +3,8 @@ App::import('Core', 'Multibyte');
 
 class Tag extends TaggingAppModel {
 	public $displayField = 'name';
+	// tagging inputs only works when tag models have plugin prefix eg Tagging.ModelsTag && Tagging.Tag
+	// displaying tags only works when tag models do not have plugin prefix eg Tagging.ModelsTag && Tagging.Tag
 	public $hasMany = array('Tagging.ModelsTag' => array('dependent' => true));
 	public $actsAs = array(
 		'Slug' => array('separator' => '-', 'overwrite' => true, 'label' => 'name'),
