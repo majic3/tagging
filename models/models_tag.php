@@ -1,9 +1,11 @@
 <?php
 class ModelsTag extends TaggingAppModel {
-	public $belongsTo = array('Tag' => array(
-		'className' => 'Tagging.Tag',
-		'counterCache' => 'count'
-	));
+	public $belongsTo = array(
+		'Tag' => array(
+			'className' => 'Tagging.Tag',
+			'counterCache' => 'count'
+		)
+	);
 
 	/**
 	 * Finds tags related to a record

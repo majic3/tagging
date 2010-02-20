@@ -3,13 +3,11 @@ App::import('Core', 'Multibyte');
 
 class Tag extends TaggingAppModel {
 	public $displayField = 'name';
+	// tagging inputs only works when tag models have plugin prefix eg Tagging.ModelsTag && Tagging.Tag
+	// displaying tags only works when tag models do not have plugin prefix eg Tagging.ModelsTag && Tagging.Tag
 	public $hasMany = array('Tagging.ModelsTag' => array('dependent' => true));
 	public $actsAs = array(
-		'Syrup.Sluggable' => array(
-			'label' => 'name',
-			'translation' => 'utf-8',
-			'overwrite' => true
-		)
+		'Slug' => array('separator' => '-', 'overwrite' => true, 'label' => 'name'),
 	);
 	public $validate = array(
 		'name' => array(
