@@ -14,8 +14,11 @@
 	</fieldset>
 <?php echo $form->end(__d('tagging', 'Submit', true));?> 
 </div>
-<div class="actions">
-	<ul>
-		<li><?php echo $html->link(__d('tagging', 'List Tags', true), array('action'=>'index'));?></li>
-	</ul>
-</div>
+<?php $partialLayout->blockStart('sidebar'); ?>
+    <li>
+        <?php echo $html->link(__d('tagging', 'List Tags', true), array('action'=>'index')); ?>
+    </li>
+	<li>
+		<?php echo $this->element('admin_tag_cloud'); ?>
+	</li>
+<?php $partialLayout->blockEnd(); ?>

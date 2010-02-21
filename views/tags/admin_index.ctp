@@ -48,8 +48,13 @@ foreach ($data as $row):
  | 	<?php echo $paginator->numbers();?>
 	<?php echo $paginator->next(__d('tagging', 'next', true).' >>', array(), null, array('class'=>'disabled'));?>
 </div>
-<div class="actions">
-	<ul>
-		<li><?php echo $html->link(__d('tagging', 'New Tag', true), array('action'=>'add')); ?></li>
-	</ul>
-</div>
+
+
+<?php $partialLayout->blockStart('sidebar'); ?>
+    <li>
+        <?php echo $html->link(__d('tagging', 'New Tag', true), array('action'=>'add')); ?>
+    </li>
+	<li>
+		<?php echo $this->element('admin_tag_cloud'); ?>
+	</li>
+<?php $partialLayout->blockEnd(); ?>

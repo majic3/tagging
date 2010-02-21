@@ -234,5 +234,12 @@ class TagsController extends TaggingAppController {
 		
 		$this->set(compact('tag', 'data'));
 	}
+
+	public function beforeRender()	{
+		parent::beforeRender();
+		$tagCloud = $this->Tag->tagCloud();
+		
+		$this->set(compact('tagCloud'));
+	}
 }
 ?>

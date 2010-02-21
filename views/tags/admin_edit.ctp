@@ -21,9 +21,13 @@
 	</fieldset>
 <?php echo $form->end(__d('tagging', 'Submit', true));?> 
 </div>
-<div class="actions">
-	<ul>
-		<li><?php echo $html->link(__d('tagging', 'Delete', true), array('action'=>'delete', $form->value('Tag.id')), null, sprintf(__d('tagging', 'Are you sure you want to delete # %s?', true), $form->value('Tag.id'))); ?></li>
-		<li><?php echo $html->link(__d('tagging', 'List Tags', true), array('action'=>'index'));?></li>
-	</ul>
-</div>
+<?php $partialLayout->blockStart('sidebar'); ?>
+    <li>
+        <?php echo $html->link(__d('tagging', 'New Tag', true), array('action'=>'add')); ?>
+    </li>
+	<li><?php echo $html->link(__d('tagging', 'Delete', true), array('action'=>'delete', $form->value('Tag.id')), null, sprintf(__d('tagging', 'Are you sure you want to delete # %s?', true), $form->value('Tag.id'))); ?></li>
+	<li><?php echo $html->link(__d('tagging', 'List Tags', true), array('action'=>'index'));?></li>
+	<li>
+		<?php echo $this->element('admin_tag_cloud'); ?>
+	</li>
+<?php $partialLayout->blockEnd(); ?>
