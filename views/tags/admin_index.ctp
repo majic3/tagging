@@ -1,16 +1,6 @@
-<?php $paginator->options(array('url' => $this->passedArgs)); ?>
-
-<div class="tags index">
-<h2><?php __d('tagging', 'Tags');?></h2>
-
-<br/>
-<p>
-<?php
-echo $paginator->counter(array(
-'format' => __d('tagging', 'Page %page% of %pages%, showing %current% records out of %count% total, starting on record %start%, ending on %end%', true)
-));
-?></p>
-<table cellpadding="0" cellspacing="0">
+<div class="tags">
+<h2 class="section"><?php __d('tagging', 'Tags');?></h2>
+<table class="data">
 <tr>
 	<th><?php echo $paginator->sort('id');?></th>
 	<th><?php echo $paginator->sort('name');?></th>
@@ -26,14 +16,14 @@ foreach ($data as $row):
 	}
 ?>
 	<tr<?php echo $class;?>>
-		<td>
+		<td class="id">
 			<?php echo $row['Tag']['id']; ?>
 		</td>
 		<td>
 			<?php echo $row['Tag']['name']; ?>
 		</td>
-		<td>
-			<?php echo $row['Tag']['created']; ?>
+		<td class="date">
+			<?php echo $time->niceShort($row['Tag']['created']); ?>
 		</td>
 		<td class="actions">
 			<?php echo $html->link(__d('tagging', 'Edit', true), array('action'=>'edit', $row['Tag']['id'])); ?>
@@ -42,11 +32,10 @@ foreach ($data as $row):
 	</tr>
 <?php endforeach; ?>
 </table>
-</div>
-<div class="paging">
-	<?php echo $paginator->prev('<< '.__d('tagging', 'previous', true), array(), null, array('class'=>'disabled'));?>
- | 	<?php echo $paginator->numbers();?>
-	<?php echo $paginator->next(__d('tagging', 'next', true).' >>', array(), null, array('class'=>'disabled'));?>
+	<?php
+		$paginator->options(array('url' => $this->passedArgs));
+		echo $this->element('admin_pagination');
+	?>
 </div>
 
 
