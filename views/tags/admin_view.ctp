@@ -19,7 +19,7 @@
 
 $tagTr = <<<TAGTR
 <tr class="{TYPE}">
-	<td class="type">{TYPE}</td>
+	<th class="type">{TYPE}</th>
 	<td>{TITLE}</td>
 	<td>{TAGS}</td>
 	<td>{MISC}</td>

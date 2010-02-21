@@ -1,12 +1,15 @@
 <div class="tags">
 <h2 class="section"><?php __d('tagging', 'Tags');?></h2>
 <table class="data">
+<thead>
 <tr>
 	<th><?php echo $paginator->sort('id');?></th>
 	<th><?php echo $paginator->sort('name');?></th>
 	<th><?php echo $paginator->sort('created');?></th>
 	<th class="actions"><?php __d('tagging', 'Actions');?></th>
 </tr>
+</thead>
+<tbody>
 <?php
 $i = 0;
 foreach ($data as $row):
@@ -16,9 +19,9 @@ foreach ($data as $row):
 	}
 ?>
 	<tr<?php echo $class;?>>
-		<td class="id">
+		<th class="tag">
 			<?php echo $row['Tag']['id']; ?>
-		</td>
+		</th>
 		<td>
 			<?php echo $row['Tag']['name']; ?>
 		</td>
@@ -31,6 +34,7 @@ foreach ($data as $row):
 		</td>
 	</tr>
 <?php endforeach; ?>
+</tbody>
 </table>
 	<?php
 		$paginator->options(array('url' => $this->passedArgs));
