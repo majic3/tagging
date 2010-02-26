@@ -1,6 +1,7 @@
 <div class="tags">
 <h2 class="section"><?php __d('tagging', 'Tags');?></h2>
-<table class="data">
+<table class="data" cellspacing="1">
+<caption></caption>
 <thead>
 <tr>
 	<th><?php echo $paginator->sort('id');?></th>
@@ -23,7 +24,14 @@ foreach ($data as $row):
 			<?php echo $row['Tag']['id']; ?>
 		</th>
 		<td>
-			<?php echo $row['Tag']['name']; ?>
+			<?php echo $html->link(
+				$row['Tag']['name'],
+				array(
+					'action' => 'view',
+					$row['Tag']['slug'],
+					$row['Tag']['id']
+				)
+			); ?>
 		</td>
 		<td class="date">
 			<?php echo $time->niceShort($row['Tag']['created']); ?>

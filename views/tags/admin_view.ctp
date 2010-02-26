@@ -36,10 +36,11 @@ $tagSettings = array(
 
 	foreach($data as $related)	{
 		$ItemTags = $title = '';
-		$args = array();
+		$controller = false;
 		if(isset($related['Post']))	{
+			$controller = Inflector::pluralize('Post');
 			$ItemTags = explode(',', str_replace(' ', '', $related['Post']['tags']));
-			$title = $html->link($related['Post']['title'], array('plugin' => null, 'action' => 'admin_edit', $related['Post']['id']), array('title' => __('Edit this post.', true)));
+			$title = $html->link($related['Post']['title'], array('plugin' => null, 'controller' => $controller, 'action' => 'admin_edit', $related['Post']['id']), array('title' => __('Edit this post.', true)));
 			$title.= '<br />' . $html->link('View', '/' . Configure::read('Wildflower.postsParent') . '/' . $related['Post']['slug'], array('class' => '', 'rel' => 'permalink', 'title' => __('View this post.', true)));
 
 			$args[] = 'post';
@@ -50,8 +51,9 @@ $tagSettings = array(
 			$args[] = $time->niceShort($related['Post']['updated']);
 			$args[] = '';
 		} else if(isset($related['Page']))	{
+			$controller = Inflector::pluralize('Page');
 			$ItemTags = explode(',', str_replace(' ', '', $related['Page']['tags']));
-			$title = $html->link($related['Page']['title'], array('plugin' => null, 'action' => 'edit', $related['Page']['id']), array('title' => 'Edit this page.'));
+			$title = $html->link($related['Page']['title'], array('plugin' => null, 'controller' => $controller, 'action' => 'edit', $related['Page']['id']), array('title' => 'Edit this page.'));
 			$title.= '<br />' . $html->link('View', $related['Page']['url'], array('class' => '', 'rel' => 'permalink', 'title' => 'View this page.'));
 
 			$args[] = 'page';
@@ -62,8 +64,9 @@ $tagSettings = array(
 			$args[] = $time->niceShort($related['Page']['updated']);
 			$args[] = '';
 		} else if(isset($related['Asset']))	{
+			$controller = Inflector::pluralize('Asset');
 			$ItemTags = explode(',', str_replace(' ', '', $related['Asset']['tags']));
-			$title = $html->link($related['Asset']['name'], array('plugin' => null, 'action' => 'edit', $related['Asset']['id']), array('title' => 'Edit this asset.'));
+			$title = $html->link($related['Asset']['name'], array('plugin' => null, 'controller' => $controller, 'action' => 'edit', $related['Asset']['id']), array('title' => 'Edit this asset.'));
 			$title.= ' <br />THUMBNAIL';
 
 			$args[] = 'asset';
